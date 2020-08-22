@@ -1,24 +1,94 @@
 import { Request, Response } from "express";
-import fs from "fs";
+
+import Model from "../models";
+import totalDays from "../util/totalDays";
+
+export interface schedule {
+	day: string;
+	intervals: [
+		{
+			from: string;
+			to: string;
+		}
+	];
+}
 
 const createTime = (req: Request, res: Response) => {
 	const { day, intervals } = req.body;
+	const data = Model.getSchedule();
 
-	const data = fs.readFileSync("./src/data/index.json");
-	const newData = JSON.parse(data.toString());
-	newData.push({ day, intervals });
+	data.push({ day, intervals });
 
-	fs.writeFileSync("./src/data/index.json", JSON.stringify(newData, null, " "));
-	listTime(req, res);
+	const response = Model.postSchedule(data);
+	if (!response) {
+		res.status(503).json({
+			message: "Internal Error",
+		});
+	}
+
+	return res.status(201).json({
+		message: "Created",
+	});
 };
 
-const deleteTime = (req: Request, res: Response) => {};
+const deleteTime = (req: Request, res: Response) => {
+	const { day, intervals } = req.body;
+
+	const data = Model.getSchedule();
+
+	function filterData(schedule: schedule) {
+		if (
+			schedule.day != day ||
+			JSON.stringify(schedule.intervals) !== JSON.stringify(intervals)
+		) {
+			return true;
+		}
+		return false;
+	}
+
+	const newData = data.filter(filterData);
+
+	if (JSON.stringify(data) === JSON.stringify(newData)) {
+		return res.status(400).json({
+			message: "Conflict",
+		});
+	}
+
+	const response = Model.deleteSchedule(newData);
+	if (!response) {
+		return res.status(503).json({
+			message: "Internal Error",
+		});
+	}
+
+	return res.json({
+		message: "Delete Successful",
+	});
+};
 
 const listTime = (req: Request, res: Response) => {
-	const data = fs.readFileSync("./src/data/index.json");
-	return res.send(data);
+	const response = Model.getSchedule();
+
+	return res.json(response);
 };
 
-const listTimeInterval = (req: Request, res: Response) => {};
+const listTimeInterval = (req: Request, res: Response) => {
+	const { initDay, endDay } = req.body;
+
+	function filterData(schedule: schedule) {
+		if (
+			typeof schedule.day === "string" &&
+			(schedule.day === "everyday" ||
+				(totalDays(schedule.day) >= totalDays(initDay) &&
+					totalDays(schedule.day) <= totalDays(endDay)))
+		) {
+			return true;
+		}
+		return false;
+	}
+
+	const response = Model.getScheduleFiltered(filterData);
+	res.json(response);
+};
 
 export default { createTime, deleteTime, listTime, listTimeInterval };
