@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 
 import Model from "../models";
 import totalDays from "../util/totalDays";
-import hourToMinutes from "../util/hourToMinutes";
+import isDate from "../util/isDate";
 
 export interface schedule {
 	day: string;
@@ -14,15 +14,43 @@ export interface schedule {
 	];
 }
 
+interface intervalInterface {
+	start: string;
+	end: string;
+}
+
 const createTime = (req: Request, res: Response) => {
 	const { day, intervals } = req.body;
 	const data = Model.getSchedule();
 
-	// In the same day
-	if (data.some((schedule: schedule) => schedule.day === day)) {
-		res.status(409).json({
-			message: "Conflict, day already scheduled",
+	if (
+		intervals.some((input: intervalInterface) => input.start >= input.end) ||
+		(typeof day == "number" && (day < 0 || day > 6)) ||
+		(typeof day == "string" && !isDate(day) && day != "everyday")
+	) {
+		return res.status(400).json({
+			message: "Bad Request",
 		});
+	}
+
+	const index = data.findIndex((schedule: schedule) => schedule.day === day);
+
+	if (index >= 0) {
+		let conflicting = false;
+		intervals.forEach((input: intervalInterface) => {
+			data[index].intervals.forEach((appointment: intervalInterface) => {
+				if (input.start > appointment.end || input.end < appointment.start) {
+					data[index].intervals.push(...intervals);
+				} else {
+					conflicting = true;
+				}
+			});
+		});
+		if (conflicting) {
+			return res.status(409).json({
+				message: "Conflict",
+			});
+		}
 	} else {
 		data.push({ day, intervals });
 	}
@@ -44,25 +72,19 @@ const deleteTime = (req: Request, res: Response) => {
 
 	const data = Model.getSchedule();
 
-	function filterData(schedule: schedule) {
-		if (
-			schedule.day != day ||
-			JSON.stringify(schedule.intervals) !== JSON.stringify(intervals)
-		) {
-			return true;
-		}
-		return false;
-	}
+	const index = data.findIndex(
+		(schedule: schedule) =>
+			schedule.day === day &&
+			JSON.stringify(schedule.intervals) === JSON.stringify(intervals)
+	);
 
-	const newData = data.filter(filterData);
-
-	if (JSON.stringify(data) === JSON.stringify(newData)) {
-		return res.status(400).json({
-			message: "Conflict",
+	if (index < 0) {
+		return res.status(404).json({
+			message: "Not Found",
 		});
 	}
 
-	const response = Model.deleteSchedule(newData);
+	const response = Model.deleteSchedule(index);
 	if (!response) {
 		return res.status(503).json({
 			message: "Internal Error",
@@ -77,18 +99,29 @@ const deleteTime = (req: Request, res: Response) => {
 const listTime = (req: Request, res: Response) => {
 	const response = Model.getSchedule();
 
+	if (!response.length) {
+		return res.status(404).json({
+			message: "Not found",
+		});
+	}
 	return res.json(response);
 };
 
 const listTimeInterval = (req: Request, res: Response) => {
-	const { initDay, endDay } = req.body;
+	const { from, to } = req.body;
+
+	if (!isDate(from) || !isDate(to) || from >= to) {
+		return res.status(400).json({
+			message: "Bad Request",
+		});
+	}
 
 	function filterData(schedule: schedule) {
 		if (
 			typeof schedule.day === "string" &&
 			(schedule.day === "everyday" ||
-				(totalDays(schedule.day) >= totalDays(initDay) &&
-					totalDays(schedule.day) <= totalDays(endDay)))
+				(totalDays(schedule.day) >= totalDays(from) &&
+					totalDays(schedule.day) <= totalDays(to)))
 		) {
 			return true;
 		}
@@ -96,6 +129,12 @@ const listTimeInterval = (req: Request, res: Response) => {
 	}
 
 	const response = Model.getScheduleFiltered(filterData);
+
+	if (!response.length) {
+		return res.status(404).json({
+			message: "Not found",
+		});
+	}
 	res.json(response);
 };
 
