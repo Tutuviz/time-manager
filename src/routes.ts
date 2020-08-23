@@ -3,10 +3,6 @@ import Controller from "./controllers";
 
 const routes = Router();
 
-routes.get("/", (request, response) => {
-	response.send("Hello World!");
-});
-
 routes.post("/create", Controller.createTime);
 
 routes.get("/list", Controller.listTime);
