@@ -2,13 +2,14 @@ import { Request, Response } from "express";
 
 import Model from "../models";
 import totalDays from "../util/totalDays";
+import hourToMinutes from "../util/hourToMinutes";
 
 export interface schedule {
 	day: string;
 	intervals: [
 		{
-			from: string;
-			to: string;
+			start: string;
+			end: string;
 		}
 	];
 }
@@ -17,7 +18,14 @@ const createTime = (req: Request, res: Response) => {
 	const { day, intervals } = req.body;
 	const data = Model.getSchedule();
 
-	data.push({ day, intervals });
+	// In the same day
+	if (data.some((schedule: schedule) => schedule.day === day)) {
+		res.status(409).json({
+			message: "Conflict, day already scheduled",
+		});
+	} else {
+		data.push({ day, intervals });
+	}
 
 	const response = Model.postSchedule(data);
 	if (!response) {
