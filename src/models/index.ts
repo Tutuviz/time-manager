@@ -2,7 +2,7 @@ import fs from "fs";
 
 const postSchedule = (data: any) => {
 	fs.writeFile(
-		"./src/data/index.json",
+		"./src/data/data.json",
 		JSON.stringify(data, null, " "),
 		(err) => {
 			if (err) {
@@ -13,9 +13,11 @@ const postSchedule = (data: any) => {
 	return true;
 };
 
-const deleteSchedule = (data: any) => {
+const deleteSchedule = (index: number) => {
+	const data = getSchedule();
+	data.splice(index, 1);
 	fs.writeFile(
-		"./src/data/index.json",
+		"./src/data/data.json",
 		JSON.stringify(data, null, " "),
 		(err) => {
 			if (err) {
@@ -27,7 +29,7 @@ const deleteSchedule = (data: any) => {
 };
 
 const getSchedule = () => {
-	const data = fs.readFileSync("./src/data/index.json");
+	const data = fs.readFileSync("./src/data/data.json");
 	const newData = JSON.parse(data.toString());
 	return newData;
 };
