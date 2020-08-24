@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import Model from "../models";
 import totalDays from "../util/totalDays";
 import isDate from "../util/isDate";
+import isHour from "../util/isHour";
 
 export interface schedule {
 	day: string;
@@ -25,6 +26,9 @@ const createTime = (req: Request, res: Response) => {
 
 	if (
 		intervals.some((input: intervalInterface) => input.start >= input.end) ||
+		intervals.some(
+			(input: intervalInterface) => !isHour(input.start) || !isHour(input.end)
+		) ||
 		(typeof day == "number" && (day < 0 || day > 6)) ||
 		(typeof day == "string" && !isDate(day) && day != "everyday")
 	) {
