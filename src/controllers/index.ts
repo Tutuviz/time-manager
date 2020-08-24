@@ -35,12 +35,14 @@ const createTime = (req: Request, res: Response) => {
 
 	const index = data.findIndex((schedule: schedule) => schedule.day === day);
 
+	let updated = false;
 	if (index >= 0) {
 		let conflicting = false;
 		intervals.forEach((input: intervalInterface) => {
 			data[index].intervals.forEach((appointment: intervalInterface) => {
 				if (input.start > appointment.end || input.end < appointment.start) {
 					data[index].intervals.push(...intervals);
+					updated = true;
 				} else {
 					conflicting = true;
 				}
@@ -59,6 +61,12 @@ const createTime = (req: Request, res: Response) => {
 	if (!response) {
 		res.status(503).json({
 			message: "Internal Error",
+		});
+	}
+
+	if (updated) {
+		return res.status(200).json({
+			message: "Updated",
 		});
 	}
 
