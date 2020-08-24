@@ -26,15 +26,15 @@
 
 # Endpoints 📌
 
-**Toda a documentação pode ser encrontrada em: https://explore.postman.com/templates/11833/time-manager**
+**Toda a documentação pode ser encontrada em: https://explore.postman.com/templates/11833/time-manager**
 
-- [Criar Regra](##Criar-Regra)
+- [Criar Regra](#Criar-Regra)
 
-- [Remover Regra](##Remover-Regra)
+- [Remover Regra](#Remover-Regra)
 
-- [Listar Regra](##Listar-Regra)
+- [Listar Regra](#Listar-Regra)
 
-- [Listar Regra com Intervalos](##Listar-Regra-Com-Intervalos)
+- [Listar Regra com Intervalos](#Listar-Regra-Com-Intervalos)
 
 ---
 
