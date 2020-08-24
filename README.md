@@ -50,13 +50,13 @@ Request:
 
 ```json
 {
-	"day": "25-06-2018",
-	"intervals": [
-		{
-			"start": "09:30",
-			"end": "10:20"
-		}
-	]
+    "day": "25-06-2018",
+    "intervals": [
+        {
+            "start": "09:30",
+            "end": "10:20"
+        }
+    ]
 }
 ```
 
@@ -64,7 +64,7 @@ Return:
 
 ```json
 {
-	"message": "Created"
+    "message": "Created"
 }
 ```
 
@@ -84,13 +84,13 @@ Request:
 
 ```json
 {
-	"day": "25-06-2018",
-	"intervals": [
-		{
-			"start": "09:30",
-			"end": "10:20"
-		}
-	]
+    "day": "25-06-2018",
+    "intervals": [
+        {
+            "start": "09:30",
+            "end": "10:20"
+        }
+    ]
 }
 ```
 
@@ -98,7 +98,7 @@ Return:
 
 ```json
 {
-	"message": "Created"
+    "message": "Created"
 }
 ```
 
@@ -122,15 +122,15 @@ Return:
 
 ```json
 [
-	{
-		"day": "25-06-2018",
-		"intervals": [
-			{
-				"start": "09:30",
-				"end": "10:20"
-			}
-		]
-	}
+    {
+        "day": "25-06-2018",
+        "intervals": [
+            {
+                "start": "09:30",
+                "end": "10:20"
+            }
+        ]
+    }
 ]
 ```
 
@@ -150,8 +150,8 @@ Request:
 
 ```json
 {
-	"from": "22-06-2018",
-	"to": "25-08-2018"
+    "from": "22-06-2018",
+    "to": "25-08-2018"
 }
 ```
 
@@ -159,15 +159,15 @@ Return:
 
 ```json
 [
-	{
-		"day": "25-06-2018",
-		"intervals": [
-			{
-				"start": "09:30",
-				"end": "10:20"
-			}
-		]
-	}
+    {
+        "day": "25-06-2018",
+        "intervals": [
+            {
+               "start": "09:30",
+                "end": "10:20"
+            }
+        ]
+    }
 ]
 ```
 
