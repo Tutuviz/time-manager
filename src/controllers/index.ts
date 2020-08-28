@@ -110,7 +110,7 @@ const listTime = (req: Request, res: Response) => {
 const listTimeInterval = (req: Request, res: Response) => {
 	const { from, to } = req.body;
 
-	if (!isDate(from) || !isDate(to) || from >= to) {
+	if (!isDate(from) || !isDate(to)) {
 		return res.status(400).json({
 			message: "Bad Request",
 		});
