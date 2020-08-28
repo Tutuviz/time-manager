@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import Model from "../models";
 import totalDays from "../util/totalDays";
 import isDate from "../util/isDate";
+import isHour from "../util/isHour";
 
 export interface schedule {
 	day: string;
@@ -25,6 +26,9 @@ const createTime = (req: Request, res: Response) => {
 
 	if (
 		intervals.some((input: intervalInterface) => input.start >= input.end) ||
+		intervals.some(
+			(input: intervalInterface) => !isHour(input.start) || !isHour(input.end)
+		) ||
 		(typeof day == "number" && (day < 0 || day > 6)) ||
 		(typeof day == "string" && !isDate(day) && day != "everyday")
 	) {
@@ -35,12 +39,14 @@ const createTime = (req: Request, res: Response) => {
 
 	const index = data.findIndex((schedule: schedule) => schedule.day === day);
 
+	let updated = false;
 	if (index >= 0) {
 		let conflicting = false;
 		intervals.forEach((input: intervalInterface) => {
 			data[index].intervals.forEach((appointment: intervalInterface) => {
 				if (input.start > appointment.end || input.end < appointment.start) {
 					data[index].intervals.push(...intervals);
+					updated = true;
 				} else {
 					conflicting = true;
 				}
@@ -59,6 +65,12 @@ const createTime = (req: Request, res: Response) => {
 	if (!response) {
 		res.status(503).json({
 			message: "Internal Error",
+		});
+	}
+
+	if (updated) {
+		return res.status(200).json({
+			message: "Updated",
 		});
 	}
 
