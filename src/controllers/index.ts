@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import moment from "moment";
 
 import Model from "../models";
 import totalDays from "../util/totalDays";
@@ -122,7 +123,10 @@ const listTime = (req: Request, res: Response) => {
 const listTimeInterval = (req: Request, res: Response) => {
 	const { from, to } = req.body;
 
-	if (!isDate(from) || !isDate(to)) {
+	const start = moment(from, "DD-MM-YYYY");
+	const end = moment(to, "DD-MM-YYYY");
+
+	if (!isDate(from) || !isDate(to) || start > end) {
 		return res.status(400).json({
 			message: "Bad Request",
 		});
@@ -141,6 +145,21 @@ const listTimeInterval = (req: Request, res: Response) => {
 	}
 
 	const response = Model.getScheduleFiltered(filterData);
+
+	const index = response.findIndex(
+		(schedule: schedule) => schedule.day === "everyday"
+	);
+	if (index >= 0) {
+		const loop = moment(start);
+		while (loop <= end) {
+			response.push({
+				day: loop.format("DD-MM-YYYY"),
+				intervals: response[index].intervals,
+			});
+			loop.add(1, "days");
+		}
+		response.splice(index, 1);
+	}
 
 	if (!response.length) {
 		return res.status(404).json({

@@ -18,7 +18,8 @@
   },
   "homepage": "https://github.com/Tutuviz/time-manager#readme",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "moment": "^2.27.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.7",
