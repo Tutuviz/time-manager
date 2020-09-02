@@ -6,12 +6,7 @@ import totalDays from "../util/totalDays";
 
 export interface schedule {
 	day: string;
-	intervals: [
-		{
-			start: string;
-			end: string;
-		}
-	];
+	intervals: [intervalInterface];
 }
 
 interface intervalInterface {
@@ -40,22 +35,28 @@ const createTime = (req: Request, res: Response) => {
 		});
 	}
 
-	const index = data.findIndex((schedule: schedule) => schedule.day === day);
+	const index = data.findIndex(
+		(schedule: schedule) =>
+			schedule.day === moment(day, "DD-MM-YYYY").format("DD-MM-YYYY")
+	);
 
 	let updated = false;
 	if (index >= 0) {
 		let conflicting = false;
 		intervals.forEach((input: intervalInterface) => {
 			data[index].intervals.forEach((appointment: intervalInterface) => {
-				if (input.start > appointment.end || input.end < appointment.start) {
-					data[index].intervals.push(...intervals);
+				if (
+					!updated &&
+					(input.start > appointment.end || input.end < appointment.start)
+				) {
 					updated = true;
+					data[index].intervals.push(...intervals);
 				} else {
 					conflicting = true;
 				}
 			});
 		});
-		if (conflicting) {
+		if (conflicting && !updated) {
 			return res.status(409).json({
 				message: "Conflict",
 			});
