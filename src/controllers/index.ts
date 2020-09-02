@@ -3,8 +3,6 @@ import moment from "moment";
 
 import Model from "../models";
 import totalDays from "../util/totalDays";
-import isDate from "../util/isDate";
-import isHour from "../util/isHour";
 
 export interface schedule {
 	day: string;
@@ -28,10 +26,14 @@ const createTime = (req: Request, res: Response) => {
 	if (
 		intervals.some((input: intervalInterface) => input.start >= input.end) ||
 		intervals.some(
-			(input: intervalInterface) => !isHour(input.start) || !isHour(input.end)
+			(input: intervalInterface) =>
+				!moment(input.start, "HH:mm").isValid() ||
+				!moment(input.end, "HH:mm").isValid()
 		) ||
 		(typeof day == "number" && (day < 0 || day > 6)) ||
-		(typeof day == "string" && !isDate(day) && day != "everyday")
+		(typeof day == "string" &&
+			!moment(day, "DD-MM-YYYY").isValid() &&
+			day != "everyday")
 	) {
 		return res.status(400).json({
 			message: "Bad Request",
@@ -126,7 +128,9 @@ const listTimeInterval = (req: Request, res: Response) => {
 	const start = moment(from, "DD-MM-YYYY");
 	const end = moment(to, "DD-MM-YYYY");
 
-	if (!isDate(from) || !isDate(to) || start > end) {
+	console.log(start.isValid());
+
+	if (!start.isValid() || !start.isValid() || start > end) {
 		return res.status(400).json({
 			message: "Bad Request",
 		});
