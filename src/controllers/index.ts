@@ -33,7 +33,7 @@ const createTime = (req: Request, res: Response) => {
 		(typeof day == "number" && (day < 0 || day > 6)) ||
 		(typeof day == "string" &&
 			!moment(day, "DD-MM-YYYY").isValid() &&
-			day != "everyday")
+			day !== "everyday")
 	) {
 		return res.status(400).json({
 			message: "Bad Request",
@@ -127,8 +127,6 @@ const listTimeInterval = (req: Request, res: Response) => {
 
 	const start = moment(from, "DD-MM-YYYY");
 	const end = moment(to, "DD-MM-YYYY");
-
-	console.log(start.isValid());
 
 	if (!start.isValid() || !start.isValid() || start > end) {
 		return res.status(400).json({

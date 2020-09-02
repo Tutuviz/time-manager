@@ -1,5 +1,11 @@
 import fs from "fs";
 
+const getSchedule = () => {
+	const data = fs.readFileSync("./src/data/data.json");
+	const newData = JSON.parse(data.toString());
+	return newData;
+};
+
 const postSchedule = (data: any) => {
 	fs.writeFile(
 		"./src/data/data.json",
@@ -26,12 +32,6 @@ const deleteSchedule = (index: number) => {
 		}
 	);
 	return true;
-};
-
-const getSchedule = () => {
-	const data = fs.readFileSync("./src/data/data.json");
-	const newData = JSON.parse(data.toString());
-	return newData;
 };
 
 const getScheduleFiltered = (filter: any) => {

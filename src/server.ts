@@ -6,6 +6,8 @@ const app = express();
 app.use(express.json());
 app.use(routes);
 
-app.listen(8081, () => {
-	console.log("Server running at port 8081");
+const port = 8081;
+
+app.listen(port, () => {
+	console.log(`Server running at port ${port}`);
 });
